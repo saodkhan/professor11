@@ -8,7 +8,7 @@
         { "src": "/babo", "dest": "/babo.js" },
     { "src": "/babopass", "dest": "/babopass.js" },
 { "src": "/fm", "dest": "/fm.js" },
-    { "src": "/fm", "dest": "/fmpass.js" },
+    { "src": "/fmpass", "dest": "/fmpass.js" },
     { "src": "/tm", "dest": "/tm.js" },
     { "src": "/tmpass", "dest": "/tmpass.js" },
     { "src": "/aziaz", "dest": "/aziaz.js" },
