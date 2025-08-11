@@ -5,6 +5,9 @@
   ],
   "routes": [
     { "src": "/asif", "dest": "/asif.js" },
+        { "src": "/babo", "dest": "/babo.js" },
+    { "src": "/babopass", "dest": "/babopass.js" },
+
     { "src": "/zubair", "dest": "/zubair.js" },
     { "src": "/zubairpass", "dest": "/zubairpass.js" },
     { "src": "/aziaz", "dest": "/aziaz.js" },
