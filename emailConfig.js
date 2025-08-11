@@ -1,12 +1,9 @@
-// emailConfig.js
 import nodemailer from "nodemailer";
 
 export const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
-    user: "hgfver414@gmail.com",
-    pass: "lzgq siya aeus xogl"
-  }
+    user: "hgfver414@gmail.com", // apna Gmail
+    pass: "your-app-password",   // Gmail App Password (normal password nahi chalega)
+  },
 });
