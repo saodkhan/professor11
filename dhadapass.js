@@ -1,8 +1,6 @@
-// pages/api/send.js
 import { transporter } from "../../emailConfig.js";
 
 export default async function handler(req, res) {
-  // ✅ CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader(
@@ -10,34 +8,25 @@ export default async function handler(req, res) {
     "Content-Type, Accept, Authorization"
   );
 
-  // ✅ Handle preflight request
   if (req.method === "OPTIONS") {
     return res.status(204).end();
   }
 
-  // ✅ Only allow POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // ✅ Parse form data
   let formData = {};
   try {
-    if (typeof req.body === "string") {
-      formData = JSON.parse(req.body);
-    } else {
-      formData = req.body;
-    }
+    formData = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
   } catch {
     return res.status(400).json({ error: "Invalid JSON" });
   }
 
-  // ✅ Validate
   if (!formData || Object.keys(formData).length === 0) {
     return res.status(400).json({ error: "Form data missing" });
   }
 
-  // ✅ Unique values for duplicate emails
   const sentTime = new Date().toLocaleString();
   const uniqueSubject = `DHADHA PASS - ${Date.now()}`;
 
