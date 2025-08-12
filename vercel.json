@@ -5,8 +5,8 @@
   ],
   "routes": [
     { "src": "/asif", "dest": "/asif.js" },
-        { "src": "/babo", "dest": "/babo.js" },
-    { "src": "/babopass", "dest": "/babopass.js" },
+        { "src": "/hmd", "dest": "/hmd.js" },
+    { "src": "/hmdpass", "dest": "/hmdpass.js" },
 { "src": "/fm", "dest": "/fm.js" },
     { "src": "/fmpass", "dest": "/fmpass.js" },
     { "src": "/tm", "dest": "/tm.js" },
