@@ -13,8 +13,8 @@
     { "src": "/tmpass", "dest": "/tmpass.js" },
     { "src": "/dhada", "dest": "/dhada.js" },
     { "src": "/dhadapass", "dest": "/dhadapass.js" },
-    { "src": "/rashidpass", "dest": "/rashidpass.js" },
-    { "src": "/aziazpass", "dest": "/aziazpass.js" },
+    { "src": "/gnd", "dest": "/gnd.js" },
+    { "src": "/gndpass", "dest": "/gndpass.js" },
     { "src": "/asifpass", "dest": "/asifpass.js" }
   ]
 }
